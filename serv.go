@@ -4,37 +4,87 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
+// Variable pour les Joueurs
+var joueurs map[int]string
+var joueurEnCours int
+
 func main() {
+	// Initialisation des variables
+	joueurs = make(map[int]string)
 	r := mux.NewRouter()
-
-	joueur1 := map[string]int("Rifi": 1)
-	joueur1 := map[string]int("Fifi": 2)
-
-	joueurEnCours := 1
-
-	// Gestion de la partie joueur
-
 	joueur := r.PathPrefix("/joueur").Subrouter()
 	jeux := r.PathPrefix("/jeux").Subrouter()
 
+	// Gestion de la partie joueur
+
 	joueur.HandleFunc("/liste", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Liste de tous les joueurs.\n")
+		fmt.Fprintf(w, "Liste de tous les joueurs: \n")
+		if checkJoueur(joueurs[1]) && checkJoueur(joueurs[2]) {
+
+			var keys []int
+			for k := range joueurs {
+				keys = append(keys, k)
+			}
+			sort.Ints(keys)
+			for _, k := range keys {
+				fmt.Fprintf(w, "Joueur N°%d : %s\n", k, joueurs[k])
+			}
+
+			// for key, value := range joueurs {
+			// 	fmt.Fprintf(w, "Joueur N°%d : %s\n", key, value)
+			// }
+			fmt.Fprintf(w, "JSON: \n")
+			fmt.Fprintf(w, "%s", toJSON(joueurs))
+		} else {
+			fmt.Fprintf(w, "Il n'y a pas de joueurs.\n")
+		}
+
 	})
+
 	joueur.HandleFunc("/liste/{idJoueur}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		idJoueur := vars["idJoueur"]
+		i, err := strconv.Atoi(idJoueur)
 
-		fmt.Fprintf(w, "id du joueur: %s\n", idJoueur)
+		if err != nil {
+			fmt.Fprintf(w, "Pb conversion id joueur\n")
+			return
+		}
+
+		if checkJoueur(joueurs[i]) {
+			fmt.Fprintf(w, "Nom du joueur: %s\n", idJoueur)
+			fmt.Fprintf(w, "JSON :\n")
+			temp := make(map[int]string)
+			temp[i] = joueurs[i]
+			fmt.Fprintf(w, "%s\n", toJSON(temp))
+		} else {
+			fmt.Fprintf(w, "Le joueur n'existe pas !\n")
+		}
+
 	})
+	// Fonction pour la création d'un joueur
 	joueur.HandleFunc("/name/{nomjoueur}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		nomjoueur := vars["nomjoueur"]
+		numJoueur := 1
 
-		fmt.Fprintf(w, "Ajout un joueur avec le nom : %s\n", nomjoueur)
+		if joueurs[1] == "" {
+			joueurs[1] = nomjoueur
+		} else if joueurs[2] == "" {
+			joueurs[2] = nomjoueur
+			numJoueur = 2
+		} else {
+			fmt.Fprintf(w, "Les 2 joueurs sont déjà renseigner")
+			return
+		}
+
+		fmt.Fprintf(w, "Ajout de %s qui est le joueur %d\n", joueurs[numJoueur], numJoueur)
 	})
 
 	// Gestion de la partie jeux
@@ -69,4 +119,17 @@ func main() {
 	})
 
 	http.ListenAndServe(":56700", r)
+}
+
+func checkJoueur(joueur string) bool {
+	if joueur == "" {
+		return false
+	} else {
+		return true
+	}
+}
+
+func toJSON(j map[int]string) []byte {
+	joueursJSON, _ := json.Marshal(j)
+	return joueursJSON
 }
