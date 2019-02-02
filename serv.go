@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -14,6 +13,9 @@ import (
 var joueurs map[int]string
 var joueurEnCours int
 
+// Variable pour la fonction de retour JSON
+var resp map[string][]byte
+
 func main() {
 	// Initialisation des variables
 	joueurs = make(map[int]string)
@@ -22,27 +24,12 @@ func main() {
 	jeux := r.PathPrefix("/jeux").Subrouter()
 
 	// Gestion de la partie joueur
-
 	joueur.HandleFunc("/liste", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Liste de tous les joueurs: \n")
+
 		if checkJoueur(joueurs[1]) && checkJoueur(joueurs[2]) {
-
-			var keys []int
-			for k := range joueurs {
-				keys = append(keys, k)
-			}
-			sort.Ints(keys)
-			for _, k := range keys {
-				fmt.Fprintf(w, "Joueur N°%d : %s\n", k, joueurs[k])
-			}
-
-			// for key, value := range joueurs {
-			// 	fmt.Fprintf(w, "Joueur N°%d : %s\n", key, value)
-			// }
-			fmt.Fprintf(w, "JSON: \n")
-			fmt.Fprintf(w, "%s", toJSON(joueurs))
+			w = reponseFormatee(w, true, "Liste de tous les joueurs", joueurs)
 		} else {
-			fmt.Fprintf(w, "Il n'y a pas de joueurs.\n")
+			w = reponseFormatee(w, false, "Il n'y a pas de joueurs.", nil)
 		}
 
 	})
@@ -53,18 +40,18 @@ func main() {
 		i, err := strconv.Atoi(idJoueur)
 
 		if err != nil {
-			fmt.Fprintf(w, "Pb conversion id joueur\n")
+			w = reponseFormatee(w, false, "Pb conversion id joueur", joueurs)
 			return
 		}
 
 		if checkJoueur(joueurs[i]) {
-			fmt.Fprintf(w, "Nom du joueur: %s\n", idJoueur)
-			fmt.Fprintf(w, "JSON :\n")
 			temp := make(map[int]string)
 			temp[i] = joueurs[i]
-			fmt.Fprintf(w, "%s\n", toJSON(temp))
+
+			w = reponseFormatee(w, true, "Nom du joueur", temp[i])
+
 		} else {
-			fmt.Fprintf(w, "Le joueur n'existe pas !\n")
+			w = reponseFormatee(w, false, "Le joueur n'existe pas !", nil)
 		}
 
 	})
@@ -80,11 +67,11 @@ func main() {
 			joueurs[2] = nomjoueur
 			numJoueur = 2
 		} else {
-			fmt.Fprintf(w, "Les 2 joueurs sont déjà renseigner")
+			w = reponseFormatee(w, true, "Les 2 joueurs sont déjà renseigner", nil)
 			return
 		}
 
-		fmt.Fprintf(w, "Ajout de %s qui est le joueur %d\n", joueurs[numJoueur], numJoueur)
+		w = reponseFormatee(w, true, fmt.Sprintf("Ajout de %s qui est le joueur %d\n", joueurs[numJoueur], numJoueur), joueurs[numJoueur])
 	})
 
 	// Gestion de la partie jeux
@@ -111,9 +98,7 @@ func main() {
 		// empl := vars["empl"]
 
 		mapD := map[string]int{"apple": 5, "lettuce": 7, "lettuces": 7, "lesttuce": 7, "lettucce": 7, "leettuce": 7}
-		mapB, _ := json.Marshal(mapD)
-		w.Header().Set("Content-Type", "text/JSON")
-		fmt.Fprintf(w, "%s", mapB)
+		w = reponseFormatee(w, true, "TEST MAP", mapD)
 		// fmt.Fprintf(w, "Le joueur %s a placé son navire en %s a l'emplacement %s.\n", idJoueur, horiVet, empl)
 
 	})
@@ -132,4 +117,25 @@ func checkJoueur(joueur string) bool {
 func toJSON(j map[int]string) []byte {
 	joueursJSON, _ := json.Marshal(j)
 	return joueursJSON
+}
+
+type Sortie struct {
+	Ok   bool
+	Msg  string
+	Data interface{}
+}
+
+func reponseFormatee(w http.ResponseWriter, ok bool, message string, dataIn interface{}) http.ResponseWriter {
+	w.Header().Set("Content-Type", "application/json")
+
+	resp := Sortie{
+		Ok:   ok,
+		Msg:  message,
+		Data: dataIn,
+	}
+
+	ret, _ := json.Marshal(resp)
+	fmt.Fprintf(w, "%s", ret)
+
+	return w
 }
