@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SeaSpaceBattle</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
+</head>
+<body>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw" crossorigin="anonymous"></script>
+    <script src="fonction.js"></script>
+    
+<style>
+    div > button{
+        margin: 1em
+    }
+    .terrain{
+        border: 3px solid black;
+    }
+    .terrain > tr{
+    }
+    .terrain > tbody> tr > td{
+        padding: 25px;
+        border: 1px solid black;
+    }
+    .terrain > tbody> tr > td:hover{
+        background-color: gray
+    }
+</style>
+<div class="col-xs-6">
+    <div class="col-xs-12">
+        <h1>Nom du joueur : </h1>
+        <input type="text" id="inp_nom" class="form-control">
+        <button class="btn btn-success" id="ValideNom">Valider</button>
+    </div>
+    <button id="liste" class="btn btn-warning col-xs-12">LISTE Joueur</button>
+    <!--<a href="accueil.html" class="btn btn-primary col-xs-12">Accueil</a>
+    <button id="fifi" class="btn btn-primary col-xs-12">AJOUT fifi</button>
+    <button id="riri" href="" class="btn btn-primary col-xs-12">AJOUT riri</button>-->
+</div>
+
+<div class="col-xs-6">
+    <p class="col-xs-12">Infos : <br></p>
+    <p id="Msg" class="col-xs-12"></p>
+    <p id="data" class="col-xs-12"></p>
+</div>
+<div class="col-xs-7" id="carte">
+
+    <h3>Table:</h3>  
+    <table class="terrain">
+        <tr id="0">
+            <td id="0"></td>
+            <td id="1"></td>
+            <td id="2"></td>
+            <td id="3"></td>
+            <td id="4"></td>
+        </tr>
+        <tr id="1">
+            <td id="0"></td>
+            <td id="1"></td>
+            <td id="2"></td>
+            <td id="3"></td>
+            <td id="4"></td>
+        </tr>
+        <tr id="2">
+            <td id="0"></td>
+            <td id="1"></td>
+            <td id="2"></td>
+            <td id="3"></td>
+            <td id="4"></td>
+        </tr>
+        <tr id="3">
+            <td id="0"></td>
+            <td id="1"></td>
+            <td id="2"></td>
+            <td id="3"></td>
+            <td id="4"></td>
+        </tr>
+        <tr id="4">
+            <td id="0"></td>
+            <td id="1"></td>
+            <td id="2"></td>
+            <td id="3"></td>
+            <td id="4"></td>
+        </tr>
+    </table>
+</div>
+<div class="col-xs-5" id="zone_bat_1">
+    <p class="col-xs-12">Bateau 1:</p>
+    <div class="col-xs-12">
+        <select name="" id="ori_1">
+            <option value="H">Horizontal</option>
+            <option value="V">Vertical</option>
+        </select>
+    </div>
+    <input type="hidden" id="val_empl_bat_1">
+    <button class="btn btn-success" id="valid_bat_1">Valider</button>
+</div>
+<div class="col-xs-5" id="zone_tir" style="display:none">
+    <p class="col-xs-12">Faire FEU:</p>
+    <input type="hidden" id="val_tir">
+    <button class="btn btn-danger" id="valid_tir">FEU</button>
+</div>
+
+</body>
+</html>
